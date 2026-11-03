@@ -9,6 +9,11 @@
 
 > **HACS custom repository URL:** `https://github.com/srajones/GeekTaleLock-Geeksmart-HA` (category: **Integration**)
 
+> [!WARNING]
+> **⚠️ The GeekSmart phone app and this integration fight over the same cloud session — you generally cannot use both logged in at the same time.**
+> Logging in on the app can kick Home Assistant off (and HA can kick the app), and you may see rate limits or `USER_SESSION_INVALID` errors.
+> **Workaround:** when you need the phone app, **disable** the GeekDoor config entry in Home Assistant (*Settings → Devices & services → GeekDoor → ⋮ → Disable*), use the app, then **re-enable** the entry afterward.
+
 ---
 
 ## Why this exists
