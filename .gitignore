@@ -1,0 +1,47 @@
+# Secrets & Live Session Caches (NEVER commit credentials or tokens)
+.env
+.env.*
+!.env.example
+.session_cache.json
+.session_cache.json.*
+.auth_credentials.json
+.auth_credentials.json.*
+.setup_state.json
+.setup_state.json.*
+.ha_config.json
+.ha_config.json.*
+data/
+!data/.gitkeep
+
+# Decompiled APK / Reverse-Engineering Archives & Unrelated Folders
+*.apks
+*.apk
+*.dex
+*.zip
+rea-main/
+apk_extracted/
+decompiled/
+
+# Python Bytecode & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+.agents/
+PROJECT_*.md
+
+# Maintainer-only personal-identifier denylist (never commit)
+.private-denylist

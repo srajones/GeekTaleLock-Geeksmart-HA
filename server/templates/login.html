@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Sign In — mydoor</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: rgba(30, 41, 59, 0.85);
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b1120 75%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .brand-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      font-size: 2.2rem;
+      background: rgba(59, 130, 246, 0.15);
+      padding: 12px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 28px 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      height: 48px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0 14px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    .input-totp {
+      text-align: center;
+      font-size: 1.6rem !important;
+      letter-spacing: 8px;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      font-weight: 700;
+    }
+
+    .btn-toggle-pwd {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .btn-primary {
+      height: 48px;
+      background: var(--primary);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: none;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      height: 40px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .btn-secondary:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+
+    .alert {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    .link-toggle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #60a5fa;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand-header">
+      <div class="brand-icon">🔐</div>
+      <h1 class="brand-title">mydoor</h1>
+      <p class="brand-sub">GeekSmart &amp; Tuya Door Lock Control</p>
+    </div>
+
+    <!-- Step 1: Username & Password Card -->
+    <div id="step-login" class="card {% if pending_2fa %}hidden{% endif %}">
+      <h2 class="card-title">Sign In</h2>
+      <div id="login-error" class="alert alert-danger"></div>
+
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" autocomplete="username" autocapitalize="none" required placeholder="admin" value="{{ username }}">
+        </div>
+
+        <div class="form-group" style="margin-top: 12px;">
+          <label for="password">Master Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" autocomplete="current-password" required placeholder="••••••••">
+            <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility()">👁️</button>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-login" class="btn-primary" style="margin-top: 18px; width: 100%;">
+          <span>Sign In</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Step 2: 2FA Verification Card -->
+    <div id="step-2fa" class="card {% if not pending_2fa %}hidden{% endif %}">
+      <h2 class="card-title">Two-Factor Authentication</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        Enter the 6-digit code generated by your authenticator app.
+      </p>
+
+      <div id="twofa-error" class="alert alert-danger"></div>
+
+      <form id="form-2fa" onsubmit="handleVerify2FA(event)">
+        <div class="form-group">
+          <label id="code-label" for="code">Authenticator Code</label>
+          <input type="text" id="code" class="input-totp" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="000000" autofocus>
+        </div>
+
+        <button type="submit" id="btn-submit-2fa" class="btn-primary" style="margin-top: 18px; width: 100%;">
+          <span>Verify Code</span>
+        </button>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+          <span id="btn-toggle-backup" class="link-toggle" onclick="toggleBackupMode()">Use a backup recovery code</span>
+          <button type="button" class="btn-secondary" onclick="backToStep1()">← Back to Sign In</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let isBackupMode = false;
+    const nextUrl = "{{ next_url }}";
+
+    function getCsrfToken() {
+      const meta = document.querySelector('meta[name="csrf-token"]');
+      return meta ? meta.getAttribute('content') : '';
+    }
+
+    function togglePasswordVisibility() {
+      const pwd = document.getElementById('password');
+      pwd.type = pwd.type === 'password' ? 'text' : 'password';
+    }
+
+    function toggleBackupMode() {
+      isBackupMode = !isBackupMode;
+      const codeInput = document.getElementById('code');
+      const codeLabel = document.getElementById('code-label');
+      const toggleLink = document.getElementById('btn-toggle-backup');
+
+      if (isBackupMode) {
+        codeLabel.innerText = '8-Character Backup Recovery Code';
+        codeInput.className = 'input-totp';
+        codeInput.removeAttribute('inputmode');
+        codeInput.removeAttribute('pattern');
+        codeInput.maxLength = 9; // XXXX-XXXX
+        codeInput.placeholder = 'ABCD-1234';
+        toggleLink.innerText = 'Use 6-digit authenticator code instead';
+      } else {
+        codeLabel.innerText = 'Authenticator Code';
+        codeInput.className = 'input-totp';
+        codeInput.inputMode = 'numeric';
+        codeInput.pattern = '[0-9]*';
+        codeInput.maxLength = 6;
+        codeInput.placeholder = '000000';
+        toggleLink.innerText = 'Use a backup recovery code';
+      }
+      codeInput.value = '';
+      codeInput.focus();
+    }
+
+    function backToStep1() {
+      document.getElementById('step-2fa').classList.add('hidden');
+      document.getElementById('step-login').classList.remove('hidden');
+      document.getElementById('password').value = '';
+      document.getElementById('password').focus();
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('login-error');
+      const card = document.getElementById('step-login');
+      const btn = document.getElementById('btn-submit-login');
+      errBox.style.display = 'none';
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Verifying...</span>';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': getCsrfToken()
+          },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.requires_2fa) {
+          card.classList.add('hidden');
+          const step2fa = document.getElementById('step-2fa');
+          step2fa.classList.remove('hidden');
+          document.getElementById('code').focus();
+        } else if (res.ok && data.authenticated) {
+          window.location.href = nextUrl || '/';
+        } else {
+          errBox.innerText = `⚠️ ${data.error || 'Invalid credentials'}`;
+          errBox.style.display = 'flex';
+          card.classList.add('shake');
+          setTimeout(() => card.classList.remove('shake'), 400);
+        }
+      } catch (err) {
+        errBox.innerText = `⚠️ Connection error: ${err.message}`;
+        errBox.style.display = 'flex';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Sign In</span>';
+      }
+    }
+
+    async function handleVerify2FA(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('twofa-error');
+      const card = document.getElementById('step-2fa');
+      const btn = document.getElementById('btn-submit-2fa');
+      errBox.style.display = 'none';
+
+      const code = document.getElementById('code').value.trim();
+      if (!code) return;
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Checking...</span>';
+
+      try {
+        const res = await fetch('/api/auth/verify_2fa', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': getCsrfToken()
+          },
+          body: JSON.stringify({ code })
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.authenticated) {
+          window.location.href = nextUrl || '/';
+        } else {
+          errBox.innerText = `⚠️ ${data.error || 'Verification failed'}`;
+          errBox.style.display = 'flex';
+          card.classList.add('shake');
+          setTimeout(() => card.classList.remove('shake'), 400);
+        }
+      } catch (err) {
+        errBox.innerText = `⚠️ Connection error: ${err.message}`;
+        errBox.style.display = 'flex';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Verify Code</span>';
+      }
+    }
+
+    // Auto-submit 6-digit TOTP when typed
+    document.getElementById('code').addEventListener('input', function(e) {
+      if (!isBackupMode && this.value.length === 6) {
+        handleVerify2FA(e);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+name: geek-door
+
+services:
+  # One-shot data directory initializer: ensures the host bind mount ./data has
+  # proper ownership (UID 10001 geekdoor) before the unprivileged main service starts.
+  data-init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geek-door-data-init
+    user: "0:0"
+    entrypoint: ["sh", "-c", "mkdir -p /app/data && chown -R 10001:10001 /app/data && chmod 700 /app/data"]
+    volumes:
+      - ./data:/app/data
+    restart: "no"
+
+  geek-door:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geek-door-api
+    restart: unless-stopped
+    depends_on:
+      data-init:
+        condition: service_completed_successfully
+    # Strict Ubuntu VPS network & process isolation:
+    # - Dedicated bridge network (never touches other containers or host network)
+    # - Drops all Linux capabilities, enforces no-new-privileges, and mounts rootfs read-only
+    # - Default binding: 127.0.0.1:5050 to prevent Docker iptables bypass of UFW firewall
+    # - Only ./data is mounted for .session_cache.json / credentials persistence
+    networks:
+      - geek-door-net
+    ports:
+      - "${GEEK_DOOR_BIND_IP:-127.0.0.1}:${GEEK_DOOR_PORT:-5050}:5050"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "5050"
+      GEEK_DOOR_SESSION_CACHE: "/app/data/.session_cache.json"
+      GEEK_DOOR_API_KEY: "${GEEK_DOOR_API_KEY:-}"
+      GEEKSMART_EMAIL: "${GEEKSMART_EMAIL:-}"
+      GEEKSMART_PASSWORD: "${GEEKSMART_PASSWORD:-}"
+      GEEKSMART_CLIENT_ID: "${GEEKSMART_CLIENT_ID:-}"
+      GEEKSMART_TOKEN: "${GEEKSMART_TOKEN:-}"
+      TUYA_UID: "${TUYA_UID:-}"
+      TUYA_SID: "${TUYA_SID:-}"
+      TUYA_ECODE: "${TUYA_ECODE:-}"
+      TUYA_HOME_ID: "${TUYA_HOME_ID:-}"
+      TUYA_COUNTRY_CODE: "${TUYA_COUNTRY_CODE:-1}"
+    volumes:
+      - ./data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 0.50
+    pids_limit: 64
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  geek-door-net:
+    name: geek-door-net
+    driver: bridge

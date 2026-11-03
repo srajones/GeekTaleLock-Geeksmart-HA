@@ -1,0 +1,64 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select Connection Mode",
+        "description": "Choose how you want Home Assistant to communicate with your GeekSmart Door Locks.",
+        "data": {
+          "mode": "Connection Mode"
+        }
+      },
+      "direct_cloud": {
+        "title": "Direct Tuya / GeekSmart Cloud",
+        "description": "Enter your GeekSmart or Tuya account credentials. The integration will automatically discover your homes, gateways, and locks.",
+        "data": {
+          "username": "Email / Account Username",
+          "password": "Password",
+          "country_code": "Country Calling Code (e.g. 1 for US/CA)"
+        }
+      },
+      "server_bridge": {
+        "title": "Geek-Door Server Bridge",
+        "description": "Connect to your local or VPS mydoor server instance with instant webhook push state updates.",
+        "data": {
+          "server_url": "Server URL",
+          "api_key": "Home Assistant Long-Lived Token / API Key",
+          "verify_ssl": "Verify SSL Certificate"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate GeekSmart Door Lock",
+        "description": "Please enter your updated credentials to re-authenticate with the service.",
+        "data": {
+          "username": "Email / Account Username",
+          "password": "Password",
+          "api_key": "Home Assistant Long-Lived Token / API Key"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the server or cloud API.",
+      "invalid_auth": "Invalid username, password, or API key.",
+      "no_locks_found": "No compatible smart locks found under this account.",
+      "invalid_server_response": "Server did not respond with a valid mydoor payload.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This GeekSmart account or server bridge is already configured.",
+      "reauth_successful": "Reauthentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "GeekSmart Options",
+        "data": {
+          "scan_interval": "Polling Interval (seconds)",
+          "prefer_direct_ble": "Prefer Home Assistant Bluetooth stack (Direct BLE / ESPHome Proxy) with automatic Smart Plug gateway fallback",
+          "ble_direct_fallback": "Enable direct Bluetooth / ESPHome proxy fallback",
+          "default_auto_lock_time": "Default Auto-Lock Delay (seconds)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "domain": "geek_door",
+  "name": "GeekSmart Door Lock",
+  "after_dependencies": [
+    "bluetooth"
+  ],
+  "codeowners": [
+    "@srajones"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/srajones/GeekTaleLock-Geeksmart-HA",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/srajones/GeekTaleLock-Geeksmart-HA/issues",
+  "requirements": [
+    "cryptography>=41.0.0",
+    "requests>=2.31.0"
+  ],
+  "version": "1.0.2"
+}

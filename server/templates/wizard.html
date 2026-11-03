@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Setup Wizard — mydoor</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: rgba(30, 41, 59, 0.85);
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b1120 75%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      padding-bottom: 40px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Stepper Header */
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--card-border);
+      position: relative;
+    }
+
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 2px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+    }
+
+    .step-item.active .step-badge {
+      background: var(--primary);
+      border-color: #60a5fa;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+    }
+
+    .step-item.completed .step-badge {
+      background: var(--success);
+      border-color: #34d399;
+      color: #fff;
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .step-item.active .step-label {
+      color: var(--text);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      padding: 28px 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Form Fields & Modern Validation */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .field .hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .input-text {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .input-text:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .input-text:user-invalid {
+      border-color: var(--danger);
+      background-color: rgba(239, 68, 68, 0.05);
+    }
+
+    .input-text:user-valid {
+      border-color: var(--success);
+    }
+
+    /* Copyable DNS & Code Cards */
+    .dns-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      background: #0f172a;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .dns-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .dns-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .dns-val-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .dns-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      color: #93c5fd;
+      word-break: break-all;
+    }
+
+    .btn-copy {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-copy:hover {
+      background: rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-copy.copied {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Native Modal Dialog */
+    dialog:modal {
+      overscroll-behavior: contain;
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 600px;
+      width: 90%;
+      margin: auto;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+    }
+
+    dialog::backdrop {
+      background: rgba(11, 17, 32, 0.8);
+      backdrop-filter: blur(8px);
+    }
+
+    /* Monospace Code Preview */
+    pre.code-preview {
+      background: #020617;
+      padding: 14px;
+      border-radius: 10px;
+      font-family: ui-monospace, Menlo, Monaco, monospace;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      overflow-x: auto;
+      max-height: 280px;
+      border: 1px solid #1e293b;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .badge-pass { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-fail { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Stepper Navigation -->
+    <nav class="stepper" aria-label="Setup Steps">
+      <div class="step-item active" id="step-node-1" aria-current="step">
+        <div class="step-badge">1</div>
+        <div class="step-label">Welcome</div>
+      </div>
+      <div class="step-item" id="step-node-2">
+        <div class="step-badge">2</div>
+        <div class="step-label">Pre-Flight</div>
+      </div>
+      <div class="step-item" id="step-node-3">
+        <div class="step-badge">3</div>
+        <div class="step-label">Admin 2FA</div>
+      </div>
+      <div class="step-item" id="step-node-4">
+        <div class="step-badge">4</div>
+        <div class="step-label">Devices</div>
+      </div>
+      <div class="step-item" id="step-node-5">
+        <div class="step-badge">5</div>
+        <div class="step-label">Domain/DNS</div>
+      </div>
+      <div class="step-item" id="step-node-6">
+        <div class="step-badge">6</div>
+        <div class="step-label">SSL & Nginx</div>
+      </div>
+      <div class="step-item" id="step-node-7">
+        <div class="step-badge">7</div>
+        <div class="step-label">Finalize</div>
+      </div>
+    </nav>
+
+    <!-- Step Panels Container -->
+    <main id="wizard-panels">
+      <!-- Step 1: Welcome & Terms -->
+      <section class="card" id="panel-step-1">
+        <h2 class="card-title">🔐 Welcome to mydoor Setup</h2>
+        <p class="card-desc">
+          This guided onboarding walkthrough configures your GeekSmart & Tuya door lock management system,
+          authenticates your administrator account, verifies host prerequisites, configures domain DNS and SSL,
+          and establishes a production-hardened Nginx reverse proxy with one-key restore capabilities.
+        </p>
+        <div class="field" style="flex-direction: row; align-items: flex-start; gap: 10px; margin-top: 10px;">
+          <input type="checkbox" id="terms-agree" style="margin-top: 4px; width: 18px; height: 18px;" required>
+          <label for="terms-agree" style="font-size: 0.85rem; line-height: 1.4; color: var(--text-muted);">
+            I understand that mydoor actuates physical premises locks. I agree that physical emergency mechanical
+            keys will always be kept accessible, and automated unattended unlocking will not be deployed in
+            safety-critical environments.
+          </label>
+        </div>
+        <button type="button" class="btn-primary" id="btn-step-1-next" disabled>Accept & Continue</button>
+      </section>
+
+      <!-- Step 2: Environment Pre-Flight -->
+      <section class="card" id="panel-step-2" style="display: none;">
+        <h2 class="card-title">🔍 Environment Pre-Flight Checks</h2>
+        <p class="card-desc">Inspecting VPS operating system, Python runtime, storage, and port readiness.</p>
+        <div id="preflight-results" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Dynamically populated -->
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 10px;">
+          <button type="button" class="btn-secondary" id="btn-preflight-rerun">Re-Run Checks</button>
+          <button type="button" class="btn-primary" id="btn-step-2-next" style="flex: 1;">Continue to Admin Setup</button>
+        </div>
+      </section>
+
+      <!-- Step 3: Admin & TOTP 2FA -->
+      <section class="card" id="panel-step-3" style="display: none;">
+        <h2 class="card-title">👤 Administrator Account & 2FA</h2>
+        <p class="card-desc">Create your primary administrator credentials and link your Authenticator App.</p>
+
+        <!-- Credentials Form -->
+        <div id="step-3-creds" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="field">
+            <label for="admin-user">Administrator Username</label>
+            <input type="text" id="admin-user" class="input-text" required minlength="3" autocomplete="username" value="admin">
+          </div>
+          <div class="field">
+            <label for="admin-pass">Master Password</label>
+            <span class="hint">Minimum 8 characters (scrypt/PBKDF2 salted hash)</span>
+            <input type="password" id="admin-pass" class="input-text" required minlength="8" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="admin-pass-confirm">Confirm Password</label>
+            <input type="password" id="admin-pass-confirm" class="input-text" required minlength="8" autocomplete="new-password">
+          </div>
+          <div id="creds-error" style="color: var(--danger); font-size: 0.85rem; display: none;"></div>
+          <button type="button" class="btn-primary" id="btn-create-admin">Generate 2FA Authenticator</button>
+        </div>
+
+        <!-- QR Code & Verification -->
+        <div id="step-3-totp" style="display: none; flex-direction: column; gap: 16px; align-items: center;">
+          <div id="qr-container" style="background: #fff; padding: 12px; border-radius: 12px; display: inline-block;"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="totp-secret-txt" style="font-family: monospace; font-size: 0.9rem; color: #93c5fd;"></span>
+            <button type="button" class="btn-copy" id="btn-copy-secret">Copy Secret</button>
+          </div>
+          <div class="field" style="width: 100%; max-width: 280px; text-align: center;">
+            <label for="totp-code">Enter 6-Digit Code from App</label>
+            <input type="text" id="totp-code" class="input-text" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" style="text-align: center; letter-spacing: 6px; font-size: 1.25rem;">
+          </div>
+          <div id="totp-error" style="color: var(--danger); font-size: 0.85rem; display: none;"></div>
+          <button type="button" class="btn-primary" id="btn-verify-totp" style="width: 100%; max-width: 280px;">Verify & Continue</button>
+        </div>
+      </section>
+
+      <!-- Step 4: Device Discovery -->
+      <section class="card" id="panel-step-4" style="display: none;">
+        <h2 class="card-title">🔌 Device Discovery & Cloud Linkage</h2>
+        <p class="card-desc">Scanning Tuya / GeekSmart session cache for your Smart Plug BLE Gateway and Door Locks.</p>
+        <button type="button" class="btn-secondary" id="btn-discover-devices">Scan for Devices (Read-Only)</button>
+        <div id="device-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+          <div style="color: var(--text-muted); font-size: 0.85rem;">Click 'Scan for Devices' to load cached devices.</div>
+        </div>
+        <button type="button" class="btn-primary" id="btn-step-4-next" style="margin-top: 10px;">Save Aliases & Continue</button>
+      </section>
+
+      <!-- Step 5: Domain & DNS -->
+      <section class="card" id="panel-step-5" style="display: none;">
+        <h2 class="card-title">🌐 Domain & DNS Configuration</h2>
+        <p class="card-desc">Configure your subdomain A-record to route traffic safely to this VPS.</p>
+        <div class="field">
+          <label for="fqdn-input">Subdomain & Domain</label>
+          <span class="hint">Example: lock.example.com</span>
+          <input type="text" id="fqdn-input" class="input-text" placeholder="lock.example.com">
+        </div>
+
+        <!-- Mode Toggle -->
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-secondary" id="btn-tab-manual-dns" style="border-color: var(--primary);">Guided Manual DNS</button>
+          <button type="button" class="btn-secondary" id="btn-tab-namecheap-dns">Namecheap API Automation</button>
+        </div>
+
+        <!-- Manual DNS Card -->
+        <div id="manual-dns-card" class="dns-grid">
+          <div class="dns-item">
+            <span class="dns-label">Type</span>
+            <div class="dns-val-row">
+              <span class="dns-value" id="dns-type-val">A</span>
+              <button type="button" class="btn-copy" data-copy="A">Copy</button>
+            </div>
+          </div>
+          <div class="dns-item">
+            <span class="dns-label">Host</span>
+            <div class="dns-val-row">
+              <span class="dns-value" id="dns-host-val">@</span>
+              <button type="button" class="btn-copy" id="btn-copy-host">Copy</button>
+            </div>
+          </div>
+          <div class="dns-item">
+            <span class="dns-label">Value (Server IP)</span>
+            <div class="dns-val-row">
+              <span class="dns-value" id="dns-ip-val">127.0.0.1</span>
+              <button type="button" class="btn-copy" id="btn-copy-ip">Copy</button>
+            </div>
+          </div>
+          <div class="dns-item">
+            <span class="dns-label">TTL</span>
+            <div class="dns-val-row">
+              <span class="dns-value">300</span>
+              <button type="button" class="btn-copy" data-copy="300">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Namecheap Form -->
+        <div id="namecheap-form" style="display: none; flex-direction: column; gap: 12px;">
+          <div class="field">
+            <label for="nc-user">Namecheap API User</label>
+            <input type="text" id="nc-user" class="input-text">
+          </div>
+          <div class="field">
+            <label for="nc-key">Namecheap API Key</label>
+            <input type="password" id="nc-key" class="input-text">
+          </div>
+          <div class="field">
+            <label for="nc-client-ip">Client IP (Must be Whitelisted in Namecheap)</label>
+            <input type="text" id="nc-client-ip" class="input-text" value="127.0.0.1">
+          </div>
+          <div id="nc-status" style="font-size: 0.85rem;"></div>
+          <button type="button" class="btn-secondary" id="btn-nc-submit">Auto-Configure via Namecheap</button>
+        </div>
+
+        <!-- Live Propagation Poller -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #0f172a; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--card-border);">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="dns-status-indicator" style="width: 10px; height: 10px; border-radius: 50%; background: var(--warning);"></span>
+            <span id="dns-status-text" style="font-size: 0.85rem; color: var(--text-muted);">DNS not yet checked</span>
+          </div>
+          <button type="button" class="btn-secondary" id="btn-check-dns">Check Propagation</button>
+        </div>
+
+        <button type="button" class="btn-primary" id="btn-step-5-next">Continue to SSL & Nginx</button>
+      </section>
+
+      <!-- Step 6: SSL & Nginx -->
+      <section class="card" id="panel-step-6" style="display: none;">
+        <h2 class="card-title">🛡️ SSL Certificate & Safe Nginx Reverse Proxy</h2>
+        <p class="card-desc">Stage Nginx configuration, test syntax, create automated backup, and issue SSL.</p>
+
+        <div class="field">
+          <label for="admin-email">Admin Email (for Let's Encrypt renewal alerts)</label>
+          <input type="email" id="admin-email" class="input-text" placeholder="admin@example.com">
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+          <button type="button" class="btn-secondary" id="btn-preview-nginx">Preview Nginx Config</button>
+          <button type="button" class="btn-primary" id="btn-apply-nginx" style="flex: 1;">Apply & Reload Nginx</button>
+        </div>
+
+        <div id="nginx-status-message" style="font-size: 0.85rem;"></div>
+
+        <!-- Single-Action Restore Box -->
+        <div style="border-top: 1px solid var(--card-border); padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 0.9rem; font-weight: 600;">Single-Action Restore</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Instantly revert to pre-modification working state</div>
+          </div>
+          <button type="button" class="btn-danger" id="btn-restore-nginx">Restore Nginx</button>
+        </div>
+
+        <button type="button" class="btn-primary" id="btn-step-6-next" style="display: none; margin-top: 10px;">Continue to Final Summary</button>
+      </section>
+
+      <!-- Step 7: Completion & Lockout -->
+      <section class="card" id="panel-step-7" style="display: none;">
+        <h2 class="card-title">🎉 Setup Completion & Production Lockout</h2>
+        <p class="card-desc">Review your system configuration before permanently locking the setup wizard.</p>
+
+        <div id="final-summary-details" style="background: #0f172a; padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); font-size: 0.9rem; line-height: 1.6;">
+          <div><strong>Administrator:</strong> <span id="sum-admin">Configured</span></div>
+          <div><strong>2FA TOTP:</strong> <span id="sum-2fa" style="color: var(--success);">Active & Verified</span></div>
+          <div><strong>Domain:</strong> <span id="sum-domain">Configured</span></div>
+          <div><strong>Reverse Proxy:</strong> <span id="sum-nginx">Staged & Backed Up</span></div>
+        </div>
+
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 14px; border-radius: 12px; color: #fca5a5; font-size: 0.85rem; line-height: 1.4;">
+          ⚠️ <strong>PERMANENT LOCKOUT NOTICE:</strong> Clicking "Finalize & Lock Setup" permanently disables all
+          wizard endpoints (<code>/setup/*</code>). You will be redirected to the production login page.
+        </div>
+
+        <button type="button" class="btn-primary" id="btn-finalize-setup" style="background: #059669;">Finalize & Lock Setup</button>
+      </section>
+    </main>
+
+    <!-- Nginx Preview Modal Dialog -->
+    <dialog id="nginx-modal" aria-labelledby="nginx-modal-title">
+      <h3 id="nginx-modal-title" style="margin-bottom: 12px;">Nginx Virtual Host Preview</h3>
+      <pre class="code-preview" id="nginx-modal-code"></pre>
+      <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+        <button type="button" class="btn-secondary" id="btn-close-nginx-modal" autofocus>Close Preview</button>
+      </div>
+    </dialog>
+
+    <!-- Backup Codes Modal Dialog -->
+    <dialog id="backup-codes-modal" aria-labelledby="backup-codes-title">
+      <h3 id="backup-codes-title" style="margin-bottom: 8px;">🔑 Save Your Recovery Backup Codes</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
+        Each code can be used once to access your account if your authenticator app is lost.
+      </p>
+      <div id="backup-codes-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: monospace; background: #020617; padding: 14px; border-radius: 10px; font-size: 0.95rem; color: #93c5fd; margin-bottom: 16px;"></div>
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn-secondary" id="btn-copy-backup-codes">Copy All Codes</button>
+        <button type="button" class="btn-primary" id="btn-confirm-backup-codes" style="flex: 1;" autofocus>I Have Saved My Codes</button>
+      </div>
+    </dialog>
+  </div>
+
+  <!-- Live Accessibility Region -->
+  <div id="a11y-announcer" aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px);"></div>
+
+  <script>
+    const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let currentStepNum = {{ current_step or 1 }};
+    let backupCodesList = [];
+
+    function announce(msg) {
+      const el = document.getElementById('a11y-announcer');
+      if (el) el.textContent = msg;
+    }
+
+    async function apiPost(endpoint, data = {}) {
+      try {
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': CSRF_TOKEN,
+          },
+          body: JSON.stringify(data),
+        });
+        return await resp.json();
+      } catch (err) {
+        return { success: false, error: String(err) };
+      }
+    }
+
+    function showStep(num) {
+      currentStepNum = num;
+      for (let i = 1; i <= 7; i++) {
+        const panel = document.getElementById(`panel-step-${i}`);
+        const node = document.getElementById(`step-node-${i}`);
+        if (panel) panel.style.display = (i === num) ? 'flex' : 'none';
+        if (node) {
+          if (i < num) {
+            node.className = 'step-item completed';
+            node.removeAttribute('aria-current');
+          } else if (i === num) {
+            node.className = 'step-item active';
+            node.setAttribute('aria-current', 'step');
+          } else {
+            node.className = 'step-item';
+            node.removeAttribute('aria-current');
+          }
+        }
+      }
+      if (num === 2) loadPreflight();
+    }
+
+    // Step 1: Terms
+    const termsCheck = document.getElementById('terms-agree');
+    const btnStep1 = document.getElementById('btn-step-1-next');
+    termsCheck?.addEventListener('change', () => {
+      btnStep1.disabled = !termsCheck.checked;
+    });
+    btnStep1?.addEventListener('click', async () => {
+      const res = await apiPost('/api/setup/step/1', { terms_accepted: true });
+      if (res.success) showStep(2);
+    });
+
+    // Step 2: Preflight
+    async function loadPreflight() {
+      const el = document.getElementById('preflight-results');
+      el.innerHTML = '<div style="color: var(--text-muted);">Running pre-flight checks...</div>';
+      const res = await apiPost('/api/setup/step/2', {});
+      if (res.report && res.report.checks) {
+        const c = res.report.checks;
+        el.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Operating System (${c.os.platform})</span>
+            <span class="badge-status badge-${c.os.status.toLowerCase()}">${c.os.status}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Python Runtime (${c.python.version})</span>
+            <span class="badge-status badge-${c.python.status.toLowerCase()}">${c.python.status}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Available Storage (${c.disk.free_gb || 'N/A'} GB free)</span>
+            <span class="badge-status badge-${c.disk.status.toLowerCase()}">${c.disk.status}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Nginx Reverse Proxy</span>
+            <span class="badge-status badge-${c.nginx.status.toLowerCase()}">${c.nginx.status}</span>
+          </div>
+        `;
+      }
+    }
+    document.getElementById('btn-preflight-rerun')?.addEventListener('click', loadPreflight);
+    document.getElementById('btn-step-2-next')?.addEventListener('click', () => showStep(3));
+
+    // Step 3: Admin & 2FA
+    document.getElementById('btn-create-admin')?.addEventListener('click', async () => {
+      const u = document.getElementById('admin-user').value.trim();
+      const p = document.getElementById('admin-pass').value;
+      const c = document.getElementById('admin-pass-confirm').value;
+      const errEl = document.getElementById('creds-error');
+      errEl.style.display = 'none';
+
+      const res = await apiPost('/api/setup/step/3', {
+        action: 'create_credentials',
+        username: u,
+        password: p,
+        confirm_password: c,
+      });
+
+      if (!res.success) {
+        errEl.textContent = res.error || 'Failed to create credentials.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      document.getElementById('step-3-creds').style.display = 'none';
+      const totpBox = document.getElementById('step-3-totp');
+      totpBox.style.display = 'flex';
+      document.getElementById('qr-container').innerHTML = res.qr_svg;
+      document.getElementById('totp-secret-txt').textContent = res.secret;
+    });
+
+    document.getElementById('btn-verify-totp')?.addEventListener('click', async () => {
+      const u = document.getElementById('admin-user').value.trim();
+      const code = document.getElementById('totp-code').value.trim();
+      const errEl = document.getElementById('totp-error');
+      errEl.style.display = 'none';
+
+      const res = await apiPost('/api/setup/step/3', {
+        action: 'verify_totp',
+        username: u,
+        code: code,
+      });
+
+      if (!res.success) {
+        errEl.textContent = res.error || 'Invalid 2FA code.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      backupCodesList = res.backup_codes || [];
+      const grid = document.getElementById('backup-codes-grid');
+      grid.innerHTML = backupCodesList.map(c => `<div>${c}</div>`).join('');
+      const modal = document.getElementById('backup-codes-modal');
+      modal.showModal();
+    });
+
+    document.getElementById('btn-confirm-backup-codes')?.addEventListener('click', () => {
+      document.getElementById('backup-codes-modal').close();
+      showStep(4);
+    });
+
+    document.getElementById('btn-copy-backup-codes')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(backupCodesList.join('\n')).then(() => {
+        announce('Copied recovery backup codes to clipboard');
+      });
+    });
+
+    // Step 4: Devices
+    document.getElementById('btn-discover-devices')?.addEventListener('click', async () => {
+      const listEl = document.getElementById('device-list');
+      listEl.innerHTML = '<div style="color: var(--text-muted);">Scanning for devices...</div>';
+      const res = await apiPost('/api/setup/step/4', { action: 'discover' });
+      if (res.devices && res.devices.length) {
+        listEl.innerHTML = res.devices.map(d => `
+          <div style="background: #0f172a; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+            <div style="font-weight: 600;">${d.name} (${d.type})</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">MAC: ${d.mac || 'N/A'} | Battery: ${d.battery != null ? d.battery + '%' : 'N/A'}</div>
+          </div>
+        `).join('');
+      } else {
+        listEl.innerHTML = '<div style="color: var(--warning);">No physical devices found in session cache.</div>';
+      }
+    });
+
+    document.getElementById('btn-step-4-next')?.addEventListener('click', async () => {
+      await apiPost('/api/setup/step/4', { action: 'save_devices', aliases: {} });
+      showStep(5);
+    });
+
+    // Step 5: Domain & DNS
+    document.getElementById('fqdn-input')?.addEventListener('input', async (e) => {
+      const val = e.target.value.trim();
+      if (val.includes('.')) {
+        const res = await apiPost('/api/setup/step/5', { action: 'parse_domain', domain: val, public_ip: '127.0.0.1' });
+        if (res.card) {
+          document.getElementById('dns-host-val').textContent = res.card.host;
+          document.getElementById('dns-ip-val').textContent = res.card.value;
+        }
+      }
+    });
+
+    document.getElementById('btn-tab-manual-dns')?.addEventListener('click', () => {
+      document.getElementById('manual-dns-card').style.display = 'grid';
+      document.getElementById('namecheap-form').style.display = 'none';
+      document.getElementById('btn-tab-manual-dns').style.borderColor = 'var(--primary)';
+      document.getElementById('btn-tab-namecheap-dns').style.borderColor = 'var(--card-border)';
+    });
+
+    document.getElementById('btn-tab-namecheap-dns')?.addEventListener('click', () => {
+      document.getElementById('manual-dns-card').style.display = 'none';
+      document.getElementById('namecheap-form').style.display = 'flex';
+      document.getElementById('btn-tab-namecheap-dns').style.borderColor = 'var(--primary)';
+      document.getElementById('btn-tab-manual-dns').style.borderColor = 'var(--card-border)';
+    });
+
+    document.getElementById('btn-nc-submit')?.addEventListener('click', async () => {
+      const statusEl = document.getElementById('nc-status');
+      statusEl.textContent = 'Submitting to Namecheap API...';
+      const domain = document.getElementById('fqdn-input').value.trim();
+      const res = await apiPost('/api/setup/dns/namecheap', {
+        api_user: document.getElementById('nc-user').value.trim(),
+        api_key: document.getElementById('nc-key').value.trim(),
+        client_ip: document.getElementById('nc-client-ip').value.trim(),
+        domain: domain,
+        ip: document.getElementById('nc-client-ip').value.trim(),
+      });
+      if (res.success) {
+        statusEl.style.color = 'var(--success)';
+        statusEl.textContent = 'A-record configured successfully via Namecheap!';
+      } else {
+        statusEl.style.color = 'var(--danger)';
+        statusEl.textContent = res.message || res.error || 'Namecheap API call failed.';
+      }
+    });
+
+    document.getElementById('btn-check-dns')?.addEventListener('click', async () => {
+      const domain = document.getElementById('fqdn-input').value.trim() || '127.0.0.1';
+      const txt = document.getElementById('dns-status-text');
+      const dot = document.getElementById('dns-status-indicator');
+      txt.textContent = 'Checking propagation...';
+      const res = await apiPost('/api/setup/dns/verify', { domain: domain, expected_ip: '127.0.0.1' });
+      if (res.is_propagated) {
+        dot.style.background = 'var(--success)';
+        txt.textContent = `Propagated to ${res.expected_ip}!`;
+      } else {
+        dot.style.background = 'var(--warning)';
+        txt.textContent = res.message || 'Not yet resolved.';
+      }
+    });
+
+    document.getElementById('btn-step-5-next')?.addEventListener('click', async () => {
+      const domain = document.getElementById('fqdn-input').value.trim() || 'lock.example.com';
+      await apiPost('/api/setup/step/5', { action: 'save_dns', domain: domain, public_ip: '127.0.0.1' });
+      showStep(6);
+    });
+
+    // Step 6: SSL & Nginx
+    document.getElementById('btn-preview-nginx')?.addEventListener('click', async () => {
+      const domain = document.getElementById('fqdn-input')?.value.trim() || 'lock.example.com';
+      const res = await apiPost('/api/setup/nginx/preview', { domain: domain });
+      if (res.config_preview) {
+        document.getElementById('nginx-modal-code').textContent = res.config_preview;
+        document.getElementById('nginx-modal').showModal();
+      }
+    });
+    document.getElementById('btn-close-nginx-modal')?.addEventListener('click', () => {
+      document.getElementById('nginx-modal').close();
+    });
+
+    document.getElementById('btn-apply-nginx')?.addEventListener('click', async () => {
+      const msg = document.getElementById('nginx-status-message');
+      msg.textContent = 'Staging and testing Nginx config...';
+      const domain = document.getElementById('fqdn-input')?.value.trim() || 'lock.example.com';
+      const res = await apiPost('/api/setup/nginx/apply', { domain: domain });
+      if (res.success) {
+        msg.style.color = 'var(--success)';
+        msg.textContent = `Applied! Backup ID: ${res.backup_id}`;
+        document.getElementById('btn-step-6-next').style.display = 'block';
+      } else {
+        msg.style.color = 'var(--danger)';
+        msg.textContent = res.error || 'Nginx activation failed.';
+      }
+    });
+
+    document.getElementById('btn-restore-nginx')?.addEventListener('click', async () => {
+      const msg = document.getElementById('nginx-status-message');
+      msg.textContent = 'Initiating restore...';
+      const res = await apiPost('/api/setup/nginx/restore', {});
+      if (res.success) {
+        msg.style.color = 'var(--success)';
+        msg.textContent = `Restored to ${res.restored_backup_id}!`;
+      } else {
+        msg.style.color = 'var(--danger)';
+        msg.textContent = res.error || 'Restore failed.';
+      }
+    });
+
+    document.getElementById('btn-step-6-next')?.addEventListener('click', () => showStep(7));
+
+    // Step 7: Finalize
+    document.getElementById('btn-finalize-setup')?.addEventListener('click', async () => {
+      const res = await apiPost('/api/setup/finalize', {});
+      if (res.success && res.redirect) {
+        window.location.href = res.redirect;
+      } else {
+        alert(res.error || 'Failed to finalize setup.');
+      }
+    });
+
+    // Copy handlers
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-copy');
+      if (!btn) return;
+      const text = btn.dataset.copy || btn.previousElementSibling?.textContent;
+      if (text) {
+        navigator.clipboard.writeText(text.trim()).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      }
+    });
+
+    // Initial step setup
+    showStep(currentStepNum);
+  </script>
+</body>
+</html>

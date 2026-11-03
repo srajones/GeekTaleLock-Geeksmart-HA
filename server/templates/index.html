@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>GeekSmart & Tuya Lock Manager</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: rgba(30, 41, 59, 0.85);
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b1120 75%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+      padding-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Header */
+    header {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 1.75rem;
+      background: rgba(59, 130, 246, 0.15);
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .badge-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .badge-port {
+      background: rgba(139, 92, 246, 0.2);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+    }
+
+    .badge-cached {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    /* LAN Banner */
+    .lan-banner {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .lan-url {
+      font-weight: 700;
+      color: #60a5fa;
+      word-break: break-all;
+    }
+
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-copy:active {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Account Profile Card */
+    .account-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--card-border);
+      font-size: 0.85rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+    }
+
+    .account-card div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .account-card span.label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .account-card span.value {
+      color: var(--text);
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Safety Barrier Section */
+    .safety-card {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .safety-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .safety-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .safety-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(30, 41, 59, 0.6);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+
+    /* Section Title */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-refresh {
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    .btn-refresh:active {
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    /* Device Cards */
+    .device-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      border: 1px solid var(--card-border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      transition: border-color 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: #475569;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .card-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .state-pill {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .state-locked {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .state-unlocked {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .state-online {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .state-unknown {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-muted);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      background: rgba(15, 23, 42, 0.5);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+    }
+
+    .meta-grid div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .meta-val {
+      font-weight: 600;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Action Buttons */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-unlock {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-keep-unlocked {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      color: #0b1120;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-lock {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-dryrun {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.35);
+    }
+
+    .btn-gateway-refresh {
+      grid-column: span 2;
+      background: rgba(51, 65, 85, 0.6);
+      color: #94a3b8;
+      border: 1px solid #475569;
+      padding: 10px;
+      font-size: 0.85rem;
+    }
+
+    .autolock-bar {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .autolock-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .autolock-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .autolock-sub {
+      font-size: 0.74rem;
+      color: #cbd5e1;
+    }
+
+    .autolock-switch-btn {
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .autolock-on {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    .autolock-off {
+      background: rgba(245, 158, 11, 0.22);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 17, 32, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 24px;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      animation: modalSlideUp 0.2s ease-out;
+    }
+
+    @keyframes modalSlideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .modal-icon-unlock {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid var(--primary);
+    }
+
+    .modal-icon-lock {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--danger);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .modal-body {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .btn-cancel {
+      background: #334155;
+      color: #f8fafc;
+    }
+
+    .btn-confirm {
+      color: white;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      border: 1px solid #475569;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: white;
+      display: none;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+      z-index: 1001;
+      text-align: center;
+      max-width: 90%;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">🏠</div>
+        <div>
+          <div class="brand-title">GeekSmart Mobile</div>
+          <div class="brand-sub">Smart Plug BLE Bridge & Locks</div>
+        </div>
+      </div>
+      <div class="badge-group">
+        <span class="badge badge-port">Port 5050</span>
+        <span class="badge badge-cached">Cached Session</span>
+      </div>
+    </header>
+
+    <!-- Mobile LAN Connection Pill -->
+    <div class="lan-banner">
+      <div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 2px;">PHONE ACCESS URL</div>
+        <div class="lan-url" id="lan-url">http://{{ lan_ip }}:{{ port }}</div>
+      </div>
+      <button class="btn-copy" onclick="copyLanUrl()">Copy URL</button>
+    </div>
+
+    <!-- Account Details Card -->
+    <div class="account-card" id="account-card">
+      <div>
+        <span class="label">GeekSmart Email</span>
+        <span class="value" id="user-email">{{ status.email or status.accounts.geeksmart.email or "Not configured" }}</span>
+      </div>
+      <div>
+        <span class="label">Client ID</span>
+        <span class="value" id="client-id">{{ status.clientId or status.accounts.geeksmart.clientId or "N/A" }}</span>
+      </div>
+      <div>
+        <span class="label">Tuya UID</span>
+        <span class="value" id="tuya-uid">{{ status.tuyaUid or status.accounts.tuya.uid or "N/A" }}</span>
+      </div>
+      <div>
+        <span class="label">TTLock UID & User</span>
+        <span class="value" id="ttlock-uid">{{ status.ttlockUid or status.accounts.ttlock.uid or "N/A" }}{% if status.accounts.ttlock.username %} ({{ status.accounts.ttlock.username }}){% endif %}</span>
+      </div>
+    </div>
+
+    <!-- 5-Layer Safety Barrier Status -->
+    <div class="safety-card">
+      <div class="safety-title">
+        <span>🛡️</span>
+        <span>5-Layer Safety Barrier (SAFE_CONTROL Active)</span>
+      </div>
+      <div class="safety-grid">
+        <div class="safety-item">🔒 Device Deletion Blocked</div>
+        <div class="safety-item">🔒 Unbinding Blocked</div>
+        <div class="safety-item">🔒 Factory Reset Blocked</div>
+        <div class="safety-item">🔒 Fingerprint Changes Blocked</div>
+      </div>
+    </div>
+
+    <!-- Section Header -->
+    <div class="section-header">
+      <span class="section-title">Hardware Devices</span>
+      <button class="btn-refresh" onclick="loadDevices()">
+        <span>⟳</span> Refresh All
+      </button>
+    </div>
+
+    <!-- Device List -->
+    <div class="device-list" id="device-container">
+      {% for dev in devices %}
+        {% if dev.isLock or dev.deviceType == 'SMART_LOCK' %}
+          <div class="card" id="card-{{ dev.devId }}" data-equip-id="{{ dev.clientEquipmentId }}">
+            <div class="card-header">
+              <div class="card-title-wrap">
+                <div class="card-title">{{ dev.name }}{% if dev.rawName and dev.rawName.lower() not in dev.name.lower() %} ({{ dev.rawName }}){% endif %}</div>
+                <div class="card-sub">#{{ dev.clientEquipmentId }} · {{ dev.modelName }} · {{ dev.connectionPath }}</div>
+              </div>
+              <span class="state-pill {% if dev.state == 'LOCKED' %}state-locked{% elif dev.state == 'UNLOCKED' %}state-unlocked{% else %}state-unknown{% endif %}">
+                {% if dev.state == 'LOCKED' %}🔒{% elif dev.state == 'UNLOCKED' %}🔓{% else %}❓{% endif %} {{ dev.state }}
+              </span>
+            </div>
+            <div class="meta-grid">
+              <div>
+                <span class="meta-label">Battery Level</span>
+                <span class="meta-val" style="color: {% if dev.battery and dev.battery >= 50 %}var(--success){% elif dev.battery %}var(--warning){% else %}var(--text){% endif %};">
+                  🔋 {{ dev.battery if dev.battery is not none else 'N/A' }}%
+                </span>
+              </div>
+              <div>
+                <span class="meta-label">Gateway Wi-Fi Signal</span>
+                <span class="meta-val" style="color:#60a5fa;">📶 {{ dev.wifiSignalLabel or 'Good/Fair (-70 dBm on **ry5g)' }}</span>
+              </div>
+              <div style="grid-column: span 2;">
+                <span class="meta-label">Bluetooth Gateway Link (connectionStatus = {{ dev.bleConnectionStatus if dev.bleConnectionStatus is not none else (2 if dev.isOnline else 0) }})</span>
+                {% if dev.isOnline or dev.bleConnectionStatus == 2 %}
+                  <span class="meta-val" style="color:var(--success); white-space:normal;">{{ dev.bleSignalLabel or '🟢 Strong BLE Link (Connected to Dyson Plug)' }}</span>
+                {% else %}
+                  <span class="meta-val" style="color:var(--warning); white-space:normal;">{{ dev.bleSignalLabel or '🟡 Weak BLE Signal (Dyson Plug Out of Range / BLE Standby)' }}</span>
+                {% endif %}
+              </div>
+              <div>
+                <span class="meta-label">Tuya Device ID</span>
+                <span class="meta-val">{{ dev.devId }}</span>
+              </div>
+              <div>
+                <span class="meta-label">MAC / Hardware Model</span>
+                <span class="meta-val">{{ dev.mac or 'N/A' }} · {{ dev.hardwareModel or dev.modelName }}</span>
+              </div>
+            </div>
+            <!-- Auto-Lock (DP 33) / Passage Mode Row matching GeekSmart 'Set' Top Checkbox -->
+            <div class="autolock-bar" id="autolock-bar-{{ dev.devId }}">
+              <div class="autolock-info">
+                <div class="autolock-title">⏱️ Auto Lock (DP 33 · Top Set Checkbox)</div>
+                <div class="autolock-sub" id="autolock-label-{{ dev.devId }}">
+                  {% if dev.autoLockEnabled %}
+                    ON — Momentary unlock re-locks after {{ dev.autoLockSeconds or 5 }}s
+                  {% else %}
+                    OFF — Keep Unlocked (Passage Mode · Stays Unlocked)
+                  {% endif %}
+                </div>
+              </div>
+              <button
+                class="autolock-switch-btn {% if dev.autoLockEnabled %}autolock-on{% else %}autolock-off{% endif %}"
+                id="autolock-btn-{{ dev.devId }}"
+                data-autolock="{{ 'true' if dev.autoLockEnabled else 'false' }}"
+                onclick="promptAutoLockToggle('{{ dev.devId }}', '{{ dev.name }}')"
+              >
+                {% if dev.autoLockEnabled %}ON ({{ dev.autoLockSeconds or 5 }}s){% else %}OFF (Stay Open){% endif %}
+              </button>
+            </div>
+            {% if dev.signalDiagnostic %}
+              <div style="background: {% if dev.isOnline or dev.bleConnectionStatus == 2 %}rgba(16, 185, 129, 0.1){% else %}rgba(245, 158, 11, 0.12){% endif %}; border: 1px solid {% if dev.isOnline or dev.bleConnectionStatus == 2 %}rgba(16, 185, 129, 0.35){% else %}rgba(245, 158, 11, 0.4){% endif %}; border-radius: 10px; padding: 10px 12px; font-size: 0.76rem; color: #e2e8f0; line-height: 1.45;">
+                <strong>📡 Signal &amp; Link Telemetry:</strong> {{ dev.signalDiagnostic }}
+              </div>
+            {% endif %}
+            <div class="actions-grid">
+              <button class="btn btn-unlock" onclick="promptAction('{{ dev.devId }}', '{{ dev.name }}', 'unlock')">
+                <span>🔓</span> Unlock ({{ dev.autoLockSeconds or 5 }}s)
+              </button>
+              <button class="btn btn-keep-unlocked" onclick="promptAction('{{ dev.devId }}', '{{ dev.name }}', 'keep_unlocked')">
+                <span>🔓</span> Keep Unlocked
+              </button>
+              <button class="btn btn-lock" onclick="promptAction('{{ dev.devId }}', '{{ dev.name }}', 'lock')">
+                <span>🔒</span> Lock Door
+              </button>
+              <button class="btn btn-dryrun" onclick="testDryRun('{{ dev.devId }}', 'unlock')">
+                <span>⚡</span> Dry-Run
+              </button>
+              <button class="btn btn-gateway-refresh" onclick="toggleDetails('details-{{ dev.devId }}')">
+                <span>🔍</span> Inspect Data Points (DPs) &amp; API Options ▾
+              </button>
+            </div>
+            <div id="details-{{ dev.devId }}" style="display:none; background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:12px; padding:12px; font-size:0.78rem; color:#cbd5e1;">
+              <div style="font-weight:700; color:#60a5fa; margin-bottom:8px; text-transform:uppercase;">Live Data Points (dps) &amp; Capabilities</div>
+              <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+                {% for dp in dev.dpSchema %}
+                  <div style="background:rgba(30,41,59,0.7); padding:8px 10px; border-radius:8px; border:1px solid rgba(51,65,85,0.6);">
+                    <div style="display:flex; justify-content:space-between; font-weight:700; color:#f8fafc;">
+                      <span>DP {{ dp.id }} · {{ dp.code }}</span>
+                      <span style="color:#10b981;">{{ dp.stateLabel }}</span>
+                    </div>
+                    <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">{{ dp.mode }} — {{ dp.description }}</div>
+                  </div>
+                {% endfor %}
+              </div>
+              <div style="font-size:0.72rem; color:#94a3b8; word-break:break-all;">
+                <strong>Raw DPs:</strong> <code>{{ dev.dps | tojson }}</code>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="card" id="card-{{ dev.devId }}" data-equip-id="{{ dev.clientEquipmentId }}">
+            <div class="card-header">
+              <div class="card-title-wrap">
+                <div class="card-title">🔌 {{ dev.name }}</div>
+                <div class="card-sub">#{{ dev.clientEquipmentId }} · {{ dev.modelName }} · {{ dev.connectionPath }}</div>
+              </div>
+              <span class="state-pill state-online">🟢 {{ dev.state }}</span>
+            </div>
+            <div class="meta-grid">
+              <div>
+                <span class="meta-label">Wi-Fi Signal (RSSI)</span>
+                <span class="meta-val" style="color:var(--success)">📶 {{ dev.wifiSignalLabel or 'Good/Fair (-70 dBm on **ry5g)' }}</span>
+              </div>
+              <div>
+                <span class="meta-label">Hardware Model</span>
+                <span class="meta-val">{{ dev.hardwareModel or 'SK517-WBG(NEW)' }}</span>
+              </div>
+              <div style="grid-column: span 2;">
+                <span class="meta-label">Bluetooth GATT Bridge Status</span>
+                <span class="meta-val" style="color:#60a5fa; white-space:normal;">{{ dev.bleSignalLabel or '🟢 Active BLE Gateway Bridge' }}</span>
+              </div>
+              <div>
+                <span class="meta-label">Tuya Device ID</span>
+                <span class="meta-val">{{ dev.devId }}</span>
+              </div>
+              <div>
+                <span class="meta-label">MAC / WAN IP</span>
+                <span class="meta-val">{{ dev.mac or 'AA:BB:CC:00:00:E4' }} · {{ dev.ip or 'Cloud Connected' }}</span>
+              </div>
+            </div>
+            {% if dev.signalDiagnostic %}
+              <div style="background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 10px; padding: 10px 12px; font-size: 0.76rem; color: #e2e8f0; line-height: 1.45;">
+                <strong>📡 Gateway Radio Telemetry:</strong> {{ dev.signalDiagnostic }}
+              </div>
+            {% endif %}
+            <div class="actions-grid">
+              <button class="btn btn-gateway-refresh" onclick="refreshDeviceStatus('{{ dev.devId }}')">
+                <span>⟳</span> Refresh Gateway Link
+              </button>
+              <button class="btn btn-gateway-refresh" onclick="toggleDetails('details-{{ dev.devId }}')">
+                <span>🔍</span> Inspect Gateway DPs &amp; Bridged Locks ▾
+              </button>
+            </div>
+            <div id="details-{{ dev.devId }}" style="display:none; background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:12px; padding:12px; font-size:0.78rem; color:#cbd5e1;">
+              <div style="font-weight:700; color:#60a5fa; margin-bottom:8px; text-transform:uppercase;">Smart Plug Gateway Data Points (dps)</div>
+              <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+                {% for dp in dev.dpSchema %}
+                  <div style="background:rgba(30,41,59,0.7); padding:8px 10px; border-radius:8px; border:1px solid rgba(51,65,85,0.6);">
+                    <div style="display:flex; justify-content:space-between; font-weight:700; color:#f8fafc;">
+                      <span>DP {{ dp.id }} · {{ dp.code }}</span>
+                      <span style="color:#10b981;">{{ dp.stateLabel }}</span>
+                    </div>
+                    <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">{{ dp.mode }} — {{ dp.description }}</div>
+                  </div>
+                {% endfor %}
+              </div>
+              <div style="font-size:0.72rem; color:#94a3b8; word-break:break-all;">
+                <strong>Raw DPs:</strong> <code>{{ dev.dps | tojson }}</code>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% else %}
+        <div style="text-align:center; padding: 40px; color: var(--text-muted);">
+          <div class="loading-spinner" style="margin-bottom: 12px;"></div>
+          <div>Scanning registered devices...</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Safety Confirmation Modal -->
+  <div class="modal-backdrop" id="confirm-modal" onclick="onBackdropClick(event)">
+    <div class="modal" id="modal-card">
+      <div class="modal-icon-wrap" id="modal-icon">⚠️</div>
+      <div class="modal-title" id="modal-title">Confirm Door Control</div>
+      <div class="modal-body" id="modal-msg">Are you sure you want to actuate this physical lock?</div>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-confirm" id="btn-modal-confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let pendingAction = null;
+
+    function showToast(msg, duration = 3500) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.style.display = 'none'; }, duration);
+    }
+
+    async function fetchWithRetry(url, options = {}, retries = 1, timeoutMs = 15000) {
+      let lastError = null;
+      const metaCsrf = document.querySelector('meta[name="csrf-token"]');
+      const csrfToken = metaCsrf ? metaCsrf.getAttribute('content') : '';
+
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const headers = Object.assign(
+            { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
+            csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
+            options.headers || {}
+          );
+
+          const fetchOpts = Object.assign({ cache: 'no-store' }, options, {
+            signal: controller.signal,
+            headers: headers
+          });
+          const res = await fetch(url, fetchOpts);
+          clearTimeout(timer);
+          if (res.status === 429) {
+            const data = await res.json().catch(() => ({}));
+            showToast(`⏳ ${data.error || 'Rate limit reached. Please wait.'}`, 4000);
+            return res;
+          }
+          if (res.status === 403) {
+            const data = await res.json().catch(() => ({}));
+            if (data.csrfRequired) {
+              showToast('⚠️ Security token expired. Reloading...', 3000);
+              setTimeout(() => location.reload(), 1500);
+              return res;
+            }
+          }
+          if (res.status >= 500 && attempt < retries) {
+            lastError = new Error(`HTTP ${res.status}`);
+            await new Promise(r => setTimeout(r, 400 * (attempt + 1)));
+            continue;
+          }
+          return res;
+        } catch (err) {
+          clearTimeout(timer);
+          lastError = err.name === 'AbortError'
+            ? new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`)
+            : err;
+          if (attempt < retries) {
+            await new Promise(r => setTimeout(r, 400 * (attempt + 1)));
+            continue;
+          }
+        }
+      }
+      throw lastError || new Error('Network request failed');
+    }
+
+    function copyLanUrl() {
+      const url = document.getElementById('lan-url').innerText;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('📋 Copied URL to clipboard!');
+        });
+      } else {
+        showToast(`Open on phone: ${url}`);
+      }
+    }
+
+    function updateLockCardInDom(devId, stateVal, autoLockEnabled, autoLockSeconds, equipId) {
+      const card = document.getElementById(`card-${devId}`)
+        || (equipId ? document.querySelector(`[data-equip-id="${equipId}"]`) : null);
+      if (!card) return;
+      if (stateVal) {
+        const pill = card.querySelector('.state-pill');
+        if (pill) {
+          pill.className = 'state-pill ' + (
+            stateVal === 'LOCKED' ? 'state-locked' :
+            (stateVal === 'UNLOCKED' ? 'state-unlocked' : 'state-unknown')
+          );
+          const icon = stateVal === 'LOCKED' ? '🔒' : (stateVal === 'UNLOCKED' ? '🔓' : '❓');
+          pill.innerText = `${icon} ${stateVal}`;
+        }
+      }
+      if (typeof autoLockEnabled === 'boolean') {
+        const sec = autoLockSeconds || 5;
+        const labelEl = document.getElementById(`autolock-label-${devId}`) || card.querySelector('.autolock-sub');
+        if (labelEl) {
+          labelEl.innerText = autoLockEnabled
+            ? `ON — Momentary unlock re-locks after ${sec}s`
+            : 'OFF — Keep Unlocked (Passage Mode · Stays Unlocked)';
+        }
+        const btnEl = document.getElementById(`autolock-btn-${devId}`) || card.querySelector('.autolock-switch-btn');
+        if (btnEl) {
+          btnEl.dataset.autolock = autoLockEnabled ? 'true' : 'false';
+          btnEl.className = 'autolock-switch-btn ' + (autoLockEnabled ? 'autolock-on' : 'autolock-off');
+          btnEl.innerText = autoLockEnabled ? `ON (${sec}s)` : 'OFF (Stay Open)';
+        }
+      }
+    }
+
+    async function refreshDevices(showNotification = false) {
+      if (showNotification) {
+        showToast('Refreshing devices (coexisting with phone app)...');
+      }
+      try {
+        const res = await fetchWithRetry(`/api/devices?refresh=1&_t=${Date.now()}`, { method: 'GET' }, 1, 15000);
+        const data = await res.json();
+        if (data && Array.isArray(data.devices)) {
+          data.devices.forEach(dev => {
+            if (dev.isLock || dev.deviceType === 'SMART_LOCK') {
+              updateLockCardInDom(
+                dev.devId,
+                dev.state,
+                dev.autoLockEnabled,
+                dev.autoLockSeconds,
+                dev.clientEquipmentId
+              );
+            }
+          });
+        }
+        if (showNotification) {
+          showToast(`✅ Synced ${data.count || 0} devices`);
+        }
+        return data;
+      } catch (e) {
+        if (showNotification) {
+          showToast(`❌ Refresh failed: ${e.message}`);
+        }
+        return null;
+      }
+    }
+
+    async function loadDevices() {
+      return refreshDevices(true);
+    }
+
+    function toggleDetails(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+    }
+
+    function promptAutoLockToggle(id, name) {
+      const btn = document.getElementById(`autolock-btn-${id}`);
+      const currentlyOn = btn && btn.dataset.autolock === 'true';
+      const nextAction = currentlyOn ? 'keep_unlocked' : 'auto_lock_on';
+      promptAction(id, name, nextAction);
+    }
+
+    function promptAction(id, name, action) {
+      pendingAction = { id, action, name };
+      let title = '🔒 Confirm Remote Lock';
+      let msg = '';
+      let btnText = 'Yes, Confirm';
+      let btnClass = 'btn-lock';
+      let isUnlockStyle = false;
+
+      if (action === 'unlock') {
+        isUnlockStyle = true;
+        title = '🔓 Confirm Momentary Unlock';
+        msg = `Send a momentary <strong>UNLOCK (DP 71)</strong> command to <strong>${escapeHtml(name)}</strong> via the Dyson Smart Plug BLE Gateway? (Simulates fingerprint press; re-locks automatically if Auto-Lock is ON.)`;
+        btnText = 'Yes, Unlock Now';
+        btnClass = 'btn-unlock';
+      } else if (action === 'keep_unlocked' || action === 'auto_lock_off') {
+        isUnlockStyle = true;
+        title = '🔓 Keep Unlocked (Auto-Lock OFF)';
+        msg = `Uncheck <strong>Auto Lock (DP 33 = OFF)</strong> on <strong>${escapeHtml(name)}</strong>? This unlatches the door and <strong>keeps it unlocked indefinitely (Passage Mode)</strong> until you lock it again.`;
+        btnText = 'Yes, Keep Unlocked';
+        btnClass = 'btn-keep-unlocked';
+      } else if (action === 'auto_lock_on') {
+        isUnlockStyle = false;
+        title = '⏱️ Enable Auto-Lock (DP 33 = ON)';
+        msg = `Turn <strong>Auto Lock (DP 33 = ON)</strong> back on for <strong>${escapeHtml(name)}</strong> so the door automatically re-locks after each unlock?`;
+        btnText = 'Yes, Enable Auto-Lock';
+        btnClass = 'btn-lock';
+      } else {
+        isUnlockStyle = false;
+        title = '🔒 Confirm Remote Lock';
+        msg = `Physically <strong>LOCK</strong> <strong>${escapeHtml(name)}</strong> and enable Auto-Lock via the Dyson Smart Plug BLE Gateway?`;
+        btnText = 'Yes, Lock Now';
+        btnClass = 'btn-lock';
+      }
+
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-msg').innerHTML = msg;
+
+      const icon = document.getElementById('modal-icon');
+      icon.innerText = isUnlockStyle ? '🔓' : '🔒';
+      icon.className = `modal-icon-wrap ${isUnlockStyle ? 'modal-icon-unlock' : 'modal-icon-lock'}`;
+
+      const confirmBtn = document.getElementById('btn-modal-confirm');
+      confirmBtn.innerText = btnText;
+      confirmBtn.className = `btn btn-confirm ${btnClass}`;
+      confirmBtn.onclick = executePendingAction;
+
+      document.getElementById('confirm-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('confirm-modal').style.display = 'none';
+      pendingAction = null;
+    }
+
+    function onBackdropClick(e) {
+      if (e.target.id === 'confirm-modal') {
+        closeModal();
+      }
+    }
+
+    async function executePendingAction() {
+      if (!pendingAction) return;
+      const { id, action, name } = pendingAction;
+      closeModal();
+      showToast(`Transmitting ${action.toUpperCase()} command...`);
+
+      try {
+        const res = await fetchWithRetry(`/api/devices/${encodeURIComponent(id)}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: action,
+            confirmed: true
+          })
+        }, 1, 15000);
+        const result = await res.json();
+        if (result.success) {
+          showToast(`✅ ${result.message || action.toUpperCase() + ' successful'}`);
+          updateLockCardInDom(
+            result.deviceId || id,
+            result.newState,
+            result.autoLockEnabled,
+            result.autoLockSeconds,
+            result.clientEquipmentId
+          );
+        } else {
+          showToast(`❌ Error: ${result.error || 'Action failed'}`);
+        }
+      } catch (e) {
+        showToast(`❌ Network error: ${e.message}`);
+      }
+    }
+
+    async function testDryRun(id, action) {
+      showToast(`Executing Dry-Run ${action.toUpperCase()}...`);
+      try {
+        const res = await fetchWithRetry(`/api/devices/${encodeURIComponent(id)}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: action,
+            dry_run: true
+          })
+        }, 1, 15000);
+        const result = await res.json();
+        if (result.success) {
+          showToast(`⚡ Dry-Run Simulated: State = ${result.newState} (0 network packets sent)`);
+        } else {
+          showToast(`❌ Dry-Run error: ${result.error}`);
+        }
+      } catch (e) {
+        showToast(`❌ Network error: ${e.message}`);
+      }
+    }
+
+    async function refreshDeviceStatus(id) {
+      showToast('Refreshing status...');
+      try {
+        const res = await fetchWithRetry(`/api/devices/${encodeURIComponent(id)}/status?refresh=1&_t=${Date.now()}`, {
+          method: 'GET'
+        }, 1, 15000);
+        const result = await res.json();
+        if (result.success) {
+          showToast('✅ Status updated');
+          updateLockCardInDom(
+            result.devId || id,
+            result.state,
+            result.autoLockEnabled,
+            result.autoLockSeconds,
+            result.clientEquipmentId
+          );
+        } else {
+          showToast(`❌ Status check failed: ${result.error}`);
+        }
+      } catch (e) {
+        showToast(`❌ Network error: ${e.message}`);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>

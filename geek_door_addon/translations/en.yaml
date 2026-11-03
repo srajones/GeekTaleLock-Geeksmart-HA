@@ -1,0 +1,22 @@
+configuration:
+  email:
+    name: "Tuya / GeekSmart Account Email"
+    description: "Account email address used in the GeekSmart or Tuya Smart mobile application."
+  password:
+    name: "Tuya / GeekSmart Account Password"
+    description: "Password used to log into your GeekSmart or Tuya Smart account."
+  country_code:
+    name: "Country Dialing Code"
+    description: "Numeric country calling code (e.g., 1 for US/Canada, 44 for UK, 86 for China)."
+  api_key:
+    name: "Home Assistant Long-Lived Bearer Token"
+    description: "Long-lived bearer token or API key required to authenticate REST requests from Home Assistant."
+  enable_2fa:
+    name: "Enable Two-Factor Authentication"
+    description: "Enforce TOTP 2FA authentication for the web dashboard."
+  log_level:
+    name: "Log Level"
+    description: "Logging verbosity (debug, info, warning, error)."
+  dry_run:
+    name: "Dry Run Mode"
+    description: "When enabled, commands are simulated without activating physical lock motors."

@@ -1,0 +1,17 @@
+keep_unlocked:
+  name: Keep Unlocked (Passage Mode)
+  description: Puts the GeekSmart lock into Passage Mode (disables auto-lock DP 33) to keep the door unlocked.
+  target:
+    entity:
+      domain: lock
+  fields:
+    duration:
+      name: Duration
+      description: Optional duration in seconds to keep unlocked before re-enabling auto-lock.
+      example: 300
+      selector:
+        number:
+          min: 0
+          max: 86400
+          unit_of_measurement: seconds
+          mode: box

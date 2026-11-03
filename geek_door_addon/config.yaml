@@ -1,0 +1,40 @@
+name: "GeekSmart Door Lock Bridge"
+slug: "geek_door"
+description: "Local web server, REST API, and webhook bridge for GeekSmart/Tuya locks"
+version: "1.0.0"
+url: "https://github.com/srajones/GeekTaleLock-Geeksmart-HA"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: "services"
+boot: "auto"
+ports:
+  5050/tcp: 5050
+ports_description:
+  5050/tcp: "Web UI & REST API"
+webui: "http://[HOST]:[PORT:5050]"
+ingress: true
+ingress_port: 5050
+panel_icon: "mdi:door-closed-lock"
+panel_title: "GeekSmart Door"
+options:
+  email: ""
+  password: ""
+  country_code: 1
+  api_key: ""
+  enable_2fa: false
+  log_level: "info"
+  dry_run: false
+schema:
+  email: "str?"
+  password: "password?"
+  country_code: "int?"
+  api_key: "password?"
+  enable_2fa: "bool?"
+  log_level: "list(debug|info|warning|error)?"
+  dry_run: "bool?"
+map:
+  - "ssl:ro"
