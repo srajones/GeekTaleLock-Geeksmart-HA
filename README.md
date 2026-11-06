@@ -4,6 +4,7 @@
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-18BCF2.svg?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
 [![GitHub Release](https://img.shields.io/github/v/release/srajones/GeekTaleLock-Geeksmart-HA)](https://github.com/srajones/GeekTaleLock-Geeksmart-HA/releases/latest)
 [![IoT class](https://img.shields.io/badge/IoT%20class-cloud__polling%20%2B%20BLE-informational.svg)](#how-it-works)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/srajones)
 
 **The first HACS integration for GeekSmart / GeekTale smart locks.** Sign in with the same account you use in the **GeekSmart app**, and your GeekTale / GeekSmart door locks and GeekSmart smart plugs show up in **Home Assistant** as native `lock`, `switch`, `sensor`, and `binary_sensor` entities, through the **Tuya Direct Cloud** path the GeekSmart app itself uses. **No TTLock OAuth app, client ID, or developer account is required.**
 
@@ -215,6 +216,12 @@ Every cloud and BLE operation passes through `SafetyBarrierGuard`:
 ## Contributing & support
 
 Issues and pull requests are welcome: https://github.com/srajones/GeekTaleLock-Geeksmart-HA/issues. Please include your lock/plug model, Home Assistant version, and **redacted** debug logs.
+
+If this integration helped get your GeekTale / GeekSmart locks and smart plugs into Home Assistant, consider buying me a coffee!
+
+[![Buy Me A Coffee](https://img.shields.io/badge/☕_Buy_Me_a_Coffee-srajones-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/srajones)
+
+- **Buy Me a Coffee:** [https://buymeacoffee.com/srajones](https://buymeacoffee.com/srajones)
 
 ## Disclaimer
 
